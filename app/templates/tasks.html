@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="post" action="/tasks" class="new">
+  <input name="title" placeholder="What needs doing?" maxlength="200" required>
+  <input name="description" placeholder="Details (optional)">
+  <button>Add task</button>
+</form>
+
+<div class="board">
+  {% for status, items in columns.items() %}
+  <section class="col col-{{ status.value }}">
+    <h2>{{ {"todo": "To do", "doing": "In progress", "done": "Done"}[status.value] }} <small>{{ items|length }}</small></h2>
+    {% for t in items %}
+    <article class="task">
+      <h3>{{ t.title }}</h3>
+      {% if t.description %}<p>{{ t.description }}</p>{% endif %}
+      <div class="actions">
+        <form method="post" action="/tasks/{{ t.id }}/status" class="inline">
+          <select name="status" aria-label="Move task" onchange="this.form.submit()">
+            {% for s in columns %}<option value="{{ s.value }}" {{ "selected" if s == t.status }}>{{ s.value }}</option>{% endfor %}
+          </select>
+        </form>
+        <form method="post" action="/tasks/{{ t.id }}/delete" class="inline">
+          <button class="ghost">Delete</button>
+        </form>
+      </div>
+    </article>
+    {% else %}
+    <p class="empty">Nothing here yet.</p>
+    {% endfor %}
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}
